@@ -1,3 +1,6 @@
+Alunos: Carlos Eduardo do Amaral - BP3030091.
+        Lucas de Morais Pereira - BP3029905.
+
 Projeto Final QSW - Orientações para utilização.
 
 O projeto foi feito utilizando Linguagem Java com WindowBuilder na IDE Eclipse, caso seja de desejo ter a vizualização das telas implementadas, cobertura da codificação e realização dos testes unitarios, deveram ser instaladas Bibliotecas responsáveis.
