@@ -4,13 +4,13 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Scanner;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import controller.InscricaoController;
 import model.entity.*;
+import testesUnitarios.*;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
@@ -65,7 +65,7 @@ public class DisciplinasInscricao extends JFrame {
         DefaultTableModel tableModel = new DefaultTableModel() {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 6 || columnIndex == 1) { 
+                if (columnIndex == 7 || columnIndex == 1) { 
                     return Boolean.class;
                 }
                 return super.getColumnClass(columnIndex);
@@ -74,6 +74,7 @@ public class DisciplinasInscricao extends JFrame {
 
         tableModel.addColumn("Disciplina");
         tableModel.addColumn("Requisito?");
+        tableModel.addColumn("Dia Semana");
         tableModel.addColumn("Horario Inicio");
         tableModel.addColumn("Horario Fim");
         tableModel.addColumn("Quantidade Maxima");
@@ -84,6 +85,7 @@ public class DisciplinasInscricao extends JFrame {
             Object[] rowData = {
                 disciplinas.get(i).getNomeDisciplina(),
                 disciplinas.get(i).isRequisitoDisciplina(),
+                disciplinas.get(i).getDiaSemanaDisciplina(),
                 disciplinas.get(i).getHorarioInicioDisciplina(),
                 disciplinas.get(i).getHorarioFimDisciplina(),
                 disciplinas.get(i).getQuantidadeMaximaAlunosDisciplina(),
@@ -94,7 +96,7 @@ public class DisciplinasInscricao extends JFrame {
         }
         table.setModel(tableModel);
         
-        table.getColumnModel().getColumn(6).setCellRenderer(new DefaultTableCellRenderer() {
+        table.getColumnModel().getColumn(7).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 if (value instanceof Boolean) {
@@ -106,7 +108,7 @@ public class DisciplinasInscricao extends JFrame {
                 return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
         });
-        table.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(new JCheckBox()));
+        table.getColumnModel().getColumn(7).setCellEditor(new DefaultCellEditor(new JCheckBox()));
 
         scrollPane.setViewportView(table);
 
@@ -125,44 +127,40 @@ public class DisciplinasInscricao extends JFrame {
         		InscricaoController controle = new InscricaoController();
         		
         		int posicaoAluno = 0;
-        		int numeroCreditos = 0;
-        		int quantidadeAlunosDisciplina = 0;
         		int idAluno = controle.verificarIdAluno(prontuarioAluno); 
         		boolean alunoListaEspera = false;        		        		
-        		ArrayList<Disciplina> disciplinasParaIncricao = new ArrayList<>();
+        		ArrayList<Disciplina> disciplinasParaInscricao = new ArrayList<>();
         		boolean excedeuCreditos = false;
         		StringBuilder mensagemErro = new StringBuilder();
 
         		try {
         		    for (int i = 0; i < table.getRowCount(); i++) {
-        		        if (Boolean.TRUE.equals(table.getValueAt(i, 6))) {
+        		        if (Boolean.TRUE.equals(table.getValueAt(i, 7))) {
         		            String nomeDisciplina = (String) tableModel.getValueAt(i, 0);
         		            Disciplina disciplina = controle.verificarInformacoesDisciplina(nomeDisciplina);
-        		            quantidadeAlunosDisciplina = controle.verificarQuantidadeAlunosDisciplina(nomeDisciplina);
-        		            numeroCreditos += disciplina.getNumeroAulasDisciplina();
-
-        		            disciplinasParaIncricao.add(disciplina);
-
-        		            if (numeroCreditos > 20) {
-        		                excedeuCreditos = true;
-        		                mensagemErro.append("O Limite de 20 créditos foi excedido")
-        		                            .append("\n");
-        		                break; 
-        		            }
+        		            disciplinasParaInscricao.add(disciplina);
         		        }
         		    }
-
-        		    boolean conflitoDetectado = verificarConflitos(disciplinasParaIncricao);
+        		    
+        		    if (controle.verificarSomaCreditos(disciplinasParaInscricao)) {
+		                excedeuCreditos = true;
+		                mensagemErro.append("O Limite de 20 créditos foi excedido")
+		                            .append("\n");
+		                
+		                System.out.println(disciplinasParaInscricao.size());
+		            }
+        		    
+        		    boolean conflitoDetectado = verificarConflitos(disciplinasParaInscricao);
         		    
         		    if (excedeuCreditos || conflitoDetectado) {
         		    	if(!mensagemErro.isEmpty()) {
         		    		JOptionPane.showMessageDialog(null, mensagemErro.toString(), "Erro de Inscrição", JOptionPane.ERROR_MESSAGE);  
         		    	}
         		    } else {
-        		        for (Disciplina disciplina : disciplinasParaIncricao) {
+        		        for (Disciplina disciplina : disciplinasParaInscricao) {
         		            int idDisciplina = controle.verificarIdDisciplina(disciplina.getNomeDisciplina());
 
-        		            if (quantidadeAlunosDisciplina >= disciplina.getQuantidadeMaximaAlunosDisciplina()) {
+        		            if (controle.verificarMaximoAlunosDisciplina(disciplina) == false) {
         		                int decisao = JOptionPane.showConfirmDialog(
         		                    btnConfirmarDisciplinas,
         		                    "A disciplina: " + disciplina.getNomeDisciplina() + " está com a turma cheia, você gostaria de se inscrever na Lista de Espera?",
@@ -201,69 +199,91 @@ public class DisciplinasInscricao extends JFrame {
         		
         		int decisao = 0;
         		StringBuilder teste = new StringBuilder();
+        		StringBuilder materiasRequisito = new StringBuilder();
         		teste.append("<html><body><table>");
+        		materiasRequisito.append("<html><body><table>");
         		
         		if(!disciplinasIncricao.isEmpty()) {
-        		for (int i = 0; i < disciplinasIncricao.size(); i++) {
-        		    String nomeDisciplina = disciplinasIncricao.get(i).getNomeDisciplina();
-        		    turmaDisciplina turma = controle.verificarHorariosDisciplinasEscolhidas(nomeDisciplina);
-        		    
-        		    teste.append("<tr>");
-        		    teste.append("<td><b>Disciplina:</b>  ").append(nomeDisciplina).append("</td>");
-        		    if (turma != null) {
-        		        teste.append("<td><b>Professor(a):</b> ").append(turma.getProfessorDisciplina()).append("</td>");
-        		        teste.append("<td><b>Horário Inicio:</b> ").append(disciplinasIncricao.get(i).getHorarioInicioDisciplina()).append("</td>");
-        		        teste.append("<td><b>Horário Fim:</b> ").append(disciplinasIncricao.get(i).getHorarioFimDisciplina()).append("</td>");
-        		        teste.append("<td><b>Sala:</b> ").append(turma.getSalaTurma()).append("</td>");
-        		    } else {
-        		        teste.append("<td colspan='3'><b>Horário não encontrado</b></td>");
-        		    }
-        		    teste.append("</tr>");
-        		}
-
-        		teste.append("</table></body></html>");
-        		teste.append("\n\n Gostaria de confirmar a sua inscrição?");
-
-        		decisao = JOptionPane.showConfirmDialog(btnConfirmarDisciplinas, teste.toString());
-        		boolean cadastradoDisciplina = false;
-        		int idDisciplina = 0;
-        		
-        		switch(decisao) {
-        		case JOptionPane.YES_OPTION:
-        			try {
-        			    StringBuilder mensagem1 = new StringBuilder();
-        			    mensagem1.append("Você já está inscrito na(s) disciplina(s):\n");
-
-        			    boolean encontrouCadastradas = false;
-
-        			    for (int i = 0; i < disciplinasIncricao.size(); i++) {
-        			        Disciplina disciplina = disciplinasIncricao.get(i);
-        			        idDisciplina = controle.verificarIdDisciplina(disciplina.getNomeDisciplina());
-        			        cadastradoDisciplina = controle.verificarAlunoDisciplina(prontuarioAluno, disciplina.getNomeDisciplina());
-
-        			        if (!cadastradoDisciplina) {
-        			            controle.adicionarAlunoDisciplina(disciplina.getNomeDisciplina(), idDisciplina, idAluno);
-        			        } else {
-        			            mensagem1.append("- ").append(disciplina.getNomeDisciplina()).append("\n");
-        			            encontrouCadastradas = true;
-        			        }
+        			// Loop para verificar requisitos de todas as disciplinas antes de qualquer tentativa de inscrição
+        			for (int i = 0; i < disciplinasIncricao.size(); i++) {
+        			    String nomeDisciplina = disciplinasIncricao.get(i).getNomeDisciplina();
+        			    String disciplinaRequisito = controle.verificarMateriaRequisitoDisciplina(nomeDisciplina);
+        			    
+        			    if (!disciplinaRequisito.isEmpty()) {
+        			        materiasRequisito.append("<tr>");
+        			        materiasRequisito.append("<td> Não é possível se cadastrar na(s) Disciplina(s):").append("</td>");
+        			        materiasRequisito.append("<td> ").append(nomeDisciplina).append(" pois tem como matérias requisito ").append(disciplinaRequisito).append(" </td>");
+        			        materiasRequisito.append("</tr>");
         			    }
-
-        			    if (encontrouCadastradas) {
-        			        JOptionPane.showMessageDialog(null, mensagem1.toString(), "Disciplinas Já Inscritas", JOptionPane.INFORMATION_MESSAGE);
-        			    } else {
-        			        JOptionPane.showMessageDialog(null, "Inscrição realizada com sucesso!", "Inscrição Completa", JOptionPane.INFORMATION_MESSAGE);
-        			    }
-        			} catch (Exception erro) {
-        			    erro.printStackTrace();
         			}
-				break;
-				
-				case JOptionPane.NO_OPTION:
-					JOptionPane.showMessageDialog(null, "Aproveite para revisar suas disciplinas.");
-				break;       
+
+        			if (materiasRequisito.length() > 0) {
+        			    // Se encontrou matérias com requisitos não atendidos, mostra a mensagem e interrompe o processo.
+        			    JOptionPane.showMessageDialog(null, materiasRequisito);
+        			    return; // Interrompe a execução se houver disciplinas com requisitos não atendidos.
+        			}
+
+        			// Se não há requisitos não atendidos, continua com a inscrição
+        			for (int i = 0; i < disciplinasIncricao.size(); i++) {
+        			    String nomeDisciplina = disciplinasIncricao.get(i).getNomeDisciplina();
+        			    turmaDisciplina turma = controle.verificarHorariosDisciplinasEscolhidas(nomeDisciplina);
+        			    
+        			    teste.append("<tr>");
+        			    teste.append("<td><b>Disciplina:</b>  ").append(nomeDisciplina).append("</td>");
+        			    if (turma != null) {
+        			        teste.append("<td><b>Professor(a):</b> ").append(turma.getProfessorDisciplina()).append("</td>");
+        			        teste.append("<td><b>Horário Início:</b> ").append(disciplinasIncricao.get(i).getHorarioInicioDisciplina()).append("</td>");
+        			        teste.append("<td><b>Horário Fim:</b> ").append(disciplinasIncricao.get(i).getHorarioFimDisciplina()).append("</td>");
+        			        teste.append("<td><b>Sala:</b> ").append(turma.getSalaTurma()).append("</td>");
+        			    } else {
+        			        teste.append("<td colspan='3'><b>Horário não encontrado</b></td>");
+        			    }
+        			    teste.append("</tr>");
+        			}
+
+        			teste.append("</table></body></html>");
+        			teste.append("\n\n Gostaria de confirmar a sua inscrição?");
+
+        			decisao = JOptionPane.showConfirmDialog(btnConfirmarDisciplinas, teste.toString());
+        			boolean cadastradoDisciplina = false;
+        			int idDisciplina = 0;
+
+        			switch (decisao) {
+        			    case JOptionPane.YES_OPTION:
+        			        try {
+        			            StringBuilder mensagem1 = new StringBuilder();
+        			            mensagem1.append("Você já está inscrito na(s) disciplina(s):\n");
+
+        			            boolean encontrouCadastradas = false;
+
+        			            for (int i = 0; i < disciplinasIncricao.size(); i++) {
+        			                Disciplina disciplina = disciplinasIncricao.get(i);
+        			                idDisciplina = controle.verificarIdDisciplina(disciplina.getNomeDisciplina());
+        			                cadastradoDisciplina = controle.verificarAlunoDisciplina(prontuarioAluno, disciplina.getNomeDisciplina());
+
+        			                if (!cadastradoDisciplina) {
+        			                    controle.adicionarAlunoDisciplina(disciplina.getNomeDisciplina(), idDisciplina, idAluno);
+        			                } else {
+        			                    mensagem1.append("- ").append(disciplina.getNomeDisciplina()).append("\n");
+        			                    encontrouCadastradas = true;
+        			                }
+        			            }
+
+        			            if (encontrouCadastradas) {
+        			                JOptionPane.showMessageDialog(null, mensagem1.toString(), "Disciplinas Já Inscritas", JOptionPane.INFORMATION_MESSAGE);
+        			            } else {
+        			                JOptionPane.showMessageDialog(null, "Inscrição realizada com sucesso!", "Inscrição Completa", JOptionPane.INFORMATION_MESSAGE);
+        			            }
+        			        } catch (Exception erro) {
+        			            erro.printStackTrace();
+        			        }
+        			        break;
+
+        			    case JOptionPane.NO_OPTION:
+        			        JOptionPane.showMessageDialog(null, "Aproveite para revisar suas disciplinas.");
+        			        break;
+        			}
         		}
-        	  }
         	}
         });
         btnConfirmarDisciplinas.setBounds(333, 371, 144, 44);
@@ -282,15 +302,17 @@ public class DisciplinasInscricao extends JFrame {
             Disciplina disciplina1 = disciplinasSelecionadas.get(i);
             Time inicio1 = disciplina1.getHorarioInicioDisciplina();
             Time fim1 = disciplina1.getHorarioFimDisciplina();
+            String dia1 = disciplina1.getDiaSemanaDisciplina();
 
             for (int j = i + 1; j < disciplinasSelecionadas.size(); j++) {
                 Disciplina disciplina2 = disciplinasSelecionadas.get(j);
                 Time inicio2 = disciplina2.getHorarioInicioDisciplina();
                 Time fim2 = disciplina2.getHorarioFimDisciplina();
+                String dia2 = disciplina2.getDiaSemanaDisciplina();
                 
-                if (!disciplina1.getNomeDisciplina().equals(disciplina2.getNomeDisciplina()) && hasTimeConflict(inicio1, fim1, inicio2, fim2)) {
+                if (dia1.equals(dia2) && hasTimeConflict(inicio1, fim1, inicio2, fim2)) {
                     frase.append("Conflito de horário entre ").append(disciplina1.getNomeDisciplina())
-                         .append(" e ").append(disciplina2.getNomeDisciplina()).append("\n")
+                         .append(" e ").append(disciplina2.getNomeDisciplina()).append(" na ").append(dia1).append("\n")
                          .append("Horários: \n").append(disciplina1.getNomeDisciplina()).append(": ")
                          .append(disciplina1.getHorarioInicioDisciplina()).append(" - ")
                          .append(disciplina1.getHorarioFimDisciplina()).append("\n")

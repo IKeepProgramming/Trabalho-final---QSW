@@ -84,4 +84,22 @@ public class InscricaoController {
 		
 		return listaEspera.verificarPosicaoAlunoListaEspera(prontuarioAluno, nomeDisciplina);
 	}
+	
+	public boolean verificarSomaCreditos(ArrayList<Disciplina> arrayDisciplinas) {
+		Disciplina disciplina = new Disciplina();
+		
+		return disciplina.verificarSomaCreditos(arrayDisciplinas);
+	}
+	
+	public boolean verificarMaximoAlunosDisciplina(Disciplina disciplina) {
+		Disciplina disciplina2 = new Disciplina();
+		
+		return disciplina2.verificarMaximoAlunosDisciplina(disciplina);
+	}
+	
+	public String verificarMateriaRequisitoDisciplina(String nomeDisciplina) {
+		DisciplinaDao disciplinadao = new DisciplinaDao();
+		
+		return disciplinadao.verificarMateriaRequisitoDisciplina(nomeDisciplina);
+	}
 }

@@ -6,6 +6,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import com.mysql.cj.xdevapi.Result;
+
 import model.entity.*;
 
 public class DisciplinaDao {	
@@ -29,6 +31,7 @@ public class DisciplinaDao {
     			disciplina = new Disciplina();
     			disciplina.setNomeDisciplina(rs.getString("DISCIPLINA.nomeDisciplina"));
     			disciplina.setRequisitoDisciplina(rs.getBoolean("DISCIPLINA.requisitoDisciplina"));
+    			disciplina.setDiaSemanaDisciplina(rs.getString("DISCIPLINA.diaSemanaDisciplina"));
     			disciplina.setHorarioInicioDisciplina(rs.getTime("DISCIPLINA.horarioInicioDisciplina"));
     			disciplina.setHorarioFimDisciplina(rs.getTime("DISCIPLINA.horarioFimDisciplina"));
     			disciplina.setQuantidadeMaximaAlunosDisciplina(rs.getInt("DISCIPLINA.quantidadeMaximoAlunosDisciplina"));
@@ -92,6 +95,7 @@ public class DisciplinaDao {
 				disciplina = new Disciplina();   			
     			disciplina.setNomeDisciplina(rs.getString("DI.nomeDisciplina"));
     			disciplina.setRequisitoDisciplina(rs.getBoolean("DI.requisitoDisciplina"));
+    			disciplina.setDiaSemanaDisciplina(rs.getString("DI.diaSemanaDisciplina"));
     			disciplina.setHorarioInicioDisciplina(rs.getTime("DI.horarioInicioDisciplina"));
     			disciplina.setHorarioFimDisciplina(rs.getTime("DI.horarioFimDisciplina"));
     			disciplina.setQuantidadeMaximaAlunosDisciplina(rs.getInt("DI.quantidadeMaximoAlunosDisciplina"));
@@ -236,5 +240,35 @@ public class DisciplinaDao {
 		}
 		
 		return cadastrado;
+	}
+	
+	public String verificarMateriaRequisitoDisciplina(String nomeDisciplina) {
+		
+		String nomeDisciplinaRequisito = "";
+		Conexao conexao = new Conexao();
+		PreparedStatement stmt;
+		ResultSet rs;
+		
+		String select = "select dr.nomeDisciplinaRequisito from disciplinasRequisito dr "
+				+ "inner join disciplina d "
+				+ "on d.idDisciplina = dr.idDisciplina "
+				+ "where dr.nomeDisciplina = ?";
+		
+		try {
+			stmt = conexao.getConn().prepareStatement(select);
+			stmt.setString(1, nomeDisciplina);
+			rs = stmt.executeQuery();
+
+			if(rs.next()) {
+				nomeDisciplina = rs.getString("dr.nomeDisciplinaRequisito");
+				System.out.println(nomeDisciplina);
+			}
+			
+			stmt.close();
+			rs.close();
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return nomeDisciplina;
 	}
 }

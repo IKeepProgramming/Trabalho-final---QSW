@@ -101,8 +101,7 @@ public class MenuPrincipal extends JFrame {
                     } else {
                         JOptionPane.showMessageDialog(null, "Aluno não encontrado.");
                     }
-				}catch (NumberFormatException erro) {
-					txtProntuario = null;
+				}catch (NumberFormatException erro) {		
 					JOptionPane.showMessageDialog(null, "Inserido Caracteres Inválidos!!!");
 				}
 				
