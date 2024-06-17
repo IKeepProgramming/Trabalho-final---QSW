@@ -81,11 +81,11 @@ INSERT INTO Disciplina (nomeDisciplina, requisitoDisciplina, diaSemanaDisciplina
     ('Introdução à Programação', true, 'Quarta-Feira','09:00:00', '10:30:00', 0, 4),
     ('Algoritmos e Estruturas de Dados', true, 'Segunda-Feira','11:00:00', '12:30:00', 40, 4),
     ('Banco de Dados', false, 'Terça-Feira','14:00:00', '15:30:00', 35, 2),
-    ('Redes de Computadores', false, 'Quinta-Feira','10:00:00', '11:30:00', 25, 2),
-    ('Sistemas Operacionais', false, 'Sexta-Feira', '08:00:00', '09:30:00', 30, 2),
+    ('Redes de Computadores', false, 'Quinta-Feira','10:00:00', '11:30:00', 25, 4),
+    ('Sistemas Operacionais', false, 'Sexta-Feira', '08:00:00', '09:30:00', 30, 4),
     ('Engenharia de Software', false, 'Segunda-Feira','13:00:00', '14:30:00', 40, 4),
     ('Desenvolvimento Web', false, 'Terça-Feira','15:00:00', '16:30:00', 50, 4),
-    ('Inteligência Artificial', false, 'Quarta-Feira','16:00:00', '17:30:00', 20, 2),
+    ('Inteligência Artificial', false, 'Quarta-Feira','16:00:00', '17:30:00', 20, 4),
     ('Computação Gráfica', false, 'Quinta-Feira','12:00:00', '13:30:00', 25, 2),
     ('Segurança da Informação', false, 'Segunda-Feira','17:00:00', '18:30:00', 30, 4);
     
@@ -117,7 +117,5 @@ INSERT INTO turmaDisciplina (idTurmaDisciplina, idDisciplina, idTurma) VALUES (1
 INSERT INTO disciplinasRequisito (nomeDisciplina, idDisciplina, nomeDisciplinaRequisito, idDisciplinaRequisito) VALUES
 			('Computação Gráfica', 9, 'Introdução à Programação', 1),
             ('Engenharia de Software', 6,'Sistemas Operacionais', 5);
-            
 
-                                                                              
 

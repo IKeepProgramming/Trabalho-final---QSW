@@ -51,7 +51,7 @@ class DisciplinasTestRN02 {
 		disciplina.setHorarioInicioDisciplina(null);
 		disciplina.setHorarioFimDisciplina(null);
 		disciplina.setNumeroAulasDisciplina(4);
-		disciplina.setQuantidadeMaximaAlunosDisciplina(0);
+		disciplina.setQuantidadeMaximaAlunosDisciplina(40);
 		
 		//Chamada do método verificarMaximoAlunoDisciplina() no controller para teste
 		resultadoTeste = controle.verificarMaximoAlunosDisciplina(disciplina);	
