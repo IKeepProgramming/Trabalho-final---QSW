@@ -118,11 +118,6 @@ INSERT INTO disciplinasRequisito (nomeDisciplina, idDisciplina, nomeDisciplinaRe
 			('Computação Gráfica', 9, 'Introdução à Programação', 1),
             ('Engenharia de Software', 6,'Sistemas Operacionais', 5);
             
-SELECT * FROM disciplinasRequisito;
-            
-select dr.nomeDisciplinaRequisito from disciplinasRequisito dr
-inner join disciplina d
-on d.idDisciplina = dr.idDisciplina
-where dr.nomeDisciplina = 'Computação Gráfica';
+
                                                                               
 

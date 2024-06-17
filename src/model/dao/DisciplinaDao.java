@@ -244,7 +244,7 @@ public class DisciplinaDao {
 	
 	public String verificarMateriaRequisitoDisciplina(String nomeDisciplina) {
 		
-		String nomeDisciplinaRequisito = "";
+		String nomeDisciplinaRequisito = "vazio";
 		Conexao conexao = new Conexao();
 		PreparedStatement stmt;
 		ResultSet rs;
@@ -260,8 +260,7 @@ public class DisciplinaDao {
 			rs = stmt.executeQuery();
 
 			if(rs.next()) {
-				nomeDisciplina = rs.getString("dr.nomeDisciplinaRequisito");
-				System.out.println(nomeDisciplina);
+				nomeDisciplinaRequisito = rs.getString("dr.nomeDisciplinaRequisito");
 			}
 			
 			stmt.close();
@@ -269,6 +268,6 @@ public class DisciplinaDao {
 		}catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return nomeDisciplina;
+		return nomeDisciplinaRequisito;
 	}
 }

@@ -209,7 +209,9 @@ public class DisciplinasInscricao extends JFrame {
         			    String nomeDisciplina = disciplinasIncricao.get(i).getNomeDisciplina();
         			    String disciplinaRequisito = controle.verificarMateriaRequisitoDisciplina(nomeDisciplina);
         			    
-        			    if (!disciplinaRequisito.isEmpty()) {
+        			    System.out.println(disciplinaRequisito);
+        			    
+        			    if (disciplinaRequisito != "vazio") {
         			        materiasRequisito.append("<tr>");
         			        materiasRequisito.append("<td> Não é possível se cadastrar na(s) Disciplina(s):").append("</td>");
         			        materiasRequisito.append("<td> ").append(nomeDisciplina).append(" pois tem como matérias requisito ").append(disciplinaRequisito).append(" </td>");
@@ -217,7 +219,7 @@ public class DisciplinasInscricao extends JFrame {
         			    }
         			}
 
-        			if (materiasRequisito.length() > 0) {
+        			if (materiasRequisito.length() > 50) {
         			    // Se encontrou matérias com requisitos não atendidos, mostra a mensagem e interrompe o processo.
         			    JOptionPane.showMessageDialog(null, materiasRequisito);
         			    return; // Interrompe a execução se houver disciplinas com requisitos não atendidos.
