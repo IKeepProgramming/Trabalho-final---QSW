@@ -3,6 +3,8 @@ Alunos: Carlos Eduardo do Amaral - BP3030091.
 
 Projeto Final QSW - Orientações para utilização.
 
+Importação: A IDE Eclipse possui um certo problema com projetos clonados do GitHub, caso você tente importar o projeto baixado do GitHub ele não irá funcionar, para isso crie uma pasta nova e cole o conteúdo baixado dentro dessa nova pasta.
+
 O projeto foi feito utilizando Linguagem Java com WindowBuilder na IDE Eclipse, caso seja de desejo ter a vizualização das telas implementadas, cobertura da codificação e realização dos testes unitarios, deveram ser instaladas Bibliotecas responsáveis.
 
 1 - Utilizando a IDE Eclipse, acesse a aba Help no menu e depois clique em Eclipse MarketPlace. Pesquisa pelas bibliotecas WindowBuilder Current e EclEmma Java Code Coverage 3.1.9, aceite os termos e instale as bibliotecas.
